@@ -1,5 +1,5 @@
 {
-  "name": "ballotSC",
+  "name": "timeLockContractEVM",
   "packageManager": "yarn@3.2.3",
   "scripts": {
     "compile": "hardhat compile",
@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
+    "@vechain.energy/hardhat-thor": "^0.4.0",
     "dotenv": "^16.0.3",
     "random-words": "^1.2.0"
   }
