@@ -14,7 +14,7 @@ contract TimeLock {
         address tokenContract,
         uint256 amount,
         bytes32 hashlock,
-        uint256 timelock
+        uint256 expirationBlock
     );
     event Unlocked(bytes32 indexed txId);
     event Canceled(bytes32 indexed txId);
@@ -25,9 +25,7 @@ contract TimeLock {
         address tokenContract;
         uint256 amount;
         bytes32 hashlock;
-        // locked UNTIL this time. Unit depends on consensus algorithm.
-        // PoA, PoA and IBFT all use seconds. But Quorum Raft uses nano-seconds
-        uint256 timelock;
+        uint256 expirationBlock;
         bool withdrawn;
         bool refunded;
         bytes32 preimage;
@@ -46,10 +44,10 @@ contract TimeLock {
         _;
     }
     modifier futureTimelock(uint256 _time) {
-        // only requirement is the timelock time is after the last blocktime (now).
-        // probably want something a bit further in the future then this.
-        // but this is still a useful sanity check:
-        require(_time > block.number, "timelock time must be in the future");
+        require(
+            _time + block.number > block.number,
+            "timelock time must be in the future"
+        );
         _;
     }
     modifier LockDetailsExists(bytes32 txId) {
@@ -95,7 +93,7 @@ contract TimeLock {
             "refundable: already withdrawn"
         );
         require(
-            transactions[_txId].timelock <= block.number,
+            transactions[_txId].expirationBlock <= block.number,
             "refundable: timelock not yet passed"
         );
         _;
@@ -131,6 +129,9 @@ contract TimeLock {
         futureTimelock(_timelock)
         returns (bytes32 txId)
     {
+        // Calculate the timelock expiration block
+        uint256 expirationBlock = _timelock + block.number;
+
         txId = sha256(
             abi.encodePacked(
                 msg.sender,
@@ -138,7 +139,7 @@ contract TimeLock {
                 _tokenContract,
                 _amount,
                 _hashlock,
-                _timelock
+                expirationBlock
             )
         );
 
@@ -162,7 +163,7 @@ contract TimeLock {
             _tokenContract,
             _amount,
             _hashlock,
-            _timelock,
+            expirationBlock,
             false,
             false,
             0x0
@@ -175,7 +176,7 @@ contract TimeLock {
             _tokenContract,
             _amount,
             _hashlock,
-            _timelock
+            expirationBlock
         );
     }
 
@@ -230,7 +231,7 @@ contract TimeLock {
      * @return tokenContract
      * @return amount
      * @return hashlock
-     * @return timelock
+     * @return expirationBlock
      * @return withdrawn
      * @return refunded
      * @return preimage
@@ -246,7 +247,7 @@ contract TimeLock {
             address tokenContract,
             uint256 amount,
             bytes32 hashlock,
-            uint256 timelock,
+            uint256 expirationBlock,
             bool withdrawn,
             bool refunded,
             bytes32 preimage
@@ -271,7 +272,7 @@ contract TimeLock {
             txDetails.tokenContract,
             txDetails.amount,
             txDetails.hashlock,
-            txDetails.timelock,
+            txDetails.expirationBlock,
             txDetails.withdrawn,
             txDetails.refunded,
             txDetails.preimage
@@ -279,7 +280,7 @@ contract TimeLock {
     }
 
     /**
-     * @dev Is there a contract with id _txId.
+     * @dev Is there a transaction with id _txId.
      * @param _txId Id into transactions mapping.
      */
     function haveLockDetails(
