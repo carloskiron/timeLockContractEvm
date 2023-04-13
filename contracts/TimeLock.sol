@@ -76,7 +76,7 @@ contract TimeLock {
             "withdrawable: already refunded"
         );
         // if we want to disallow claim to be made after the timeout, uncomment the following line
-        // require(contracts[_txId].timelock > now, "withdrawable: timelock time must be in the future");
+        // require(contracts[_txId].expirationBlock > block.number, "withdrawable: timelock time must be in the future");
         _;
     }
     modifier refundable(bytes32 _txId) {
