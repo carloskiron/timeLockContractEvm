@@ -144,8 +144,6 @@ contract TimeLock {
         );
 
         // Reject if a transaction already exists with the same parameters. The
-        // sender must change one of these parameters (ideally providing a
-        // different _hashlock).
         if (haveLockDetails(txId)) revert("Lock details already exists");
 
         // This contract becomes the temporary owner of the tokens
