@@ -51,7 +51,7 @@ contract TimeLock {
         _;
     }
     modifier LockDetailsExists(bytes32 txId) {
-        require(haveLockDetails(txId), "contractId does not exist");
+        require(haveLockDetails(txId), "txId does not exist");
         _;
     }
     modifier hashlockMatches(bytes32 _txId, bytes32 _x) {
