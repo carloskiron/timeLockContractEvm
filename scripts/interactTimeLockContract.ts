@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   const hre = require("hardhat");
-  const contractAddress = "0x08beB33BC8E114Ae4C6fFFb9a31f49E3e8eb40dF";
+  const contractAddress = "0xCa5a1e13Eb6d449571b46a6AC68Dc8BC33f87B64";
   const deployedTimeLock = await hre.thor.getContractAt('TimeLock', contractAddress);
 
   // Create a bytes32 value
